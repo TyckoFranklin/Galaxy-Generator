@@ -1,0 +1,190 @@
+<html>
+	<header>
+	</header>
+	<script type="application/javascript">
+	function buildGalaxy()
+	{
+		document.getElementById('gSTB').value = ranGen(document.getElementById('gSTB').value,12345678,5000);
+		starsArray = createGalaxy(document.getElementById('gSTB').value,
+			document.getElementById('armsTB').value,		
+			document.getElementById('dTB').value,
+			document.getElementById('rMTB').value,
+			document.getElementById('sizeTB').value,
+			document.getElementById('spacingTB').value,
+			document.getElementById('gCOTB').value*1);
+		max=starsArray.length;
+		if(document.getElementById('totalStarCountText').innerHTML=='')
+			tempI = 0;
+		else tempI = document.getElementById('totalStarCountText').innerHTML*1;
+		document.getElementById('totalStarCountText').innerHTML = max+tempI;
+		i = null;
+		if(document.getElementById('testCanvas')==null){
+			tempElement = document.createElement('canvas');
+			tempElement.setAttribute("id","testCanvas");
+			tempElement.setAttribute("width","5000");
+			tempElement.setAttribute("height","5000");
+			tempElement.setAttribute("style","border:1px solid #000000;background-color:#000000;");
+			}
+		else tempElement = document.getElementById('testCanvas');
+		var cContext=tempElement.getContext("2d");
+		cContext.lineWidth=5;
+		for(i=0;i<max;i++)
+		{
+			var xC = starsArray[i].xRadius+starsArray[i].spacing*Math.sin(starsArray[i].radian);
+			var yC =starsArray[i].yRadius+starsArray[i].spacing*Math.cos(starsArray[i].radian);
+			cContext.fillStyle="#FFFF00";
+			cContext.fillRect(xC,yC,1,1);
+
+/*
+			cContext.moveTo(xC-1,yC-1);
+			cContext.lineTo(xC+1,yC-1);
+			cContext.lineTo(xC+1,yC+1);
+			cContext.lineTo(xC-1,yC+1);
+			cContext.lineTo(xC-1,yC-1);
+*/
+			
+/*
+			tempElement = document.createElement('div');
+			tempElement.style.color = "rgb("+starsArray[i].red+","+starsArray[i].green+","+starsArray[i].blue+")";
+			tempElement.style.position = "absolute";
+			tempElement.style.top = (starsArray[i].yRadius+starsArray[i].spacing*Math.cos(starsArray[i].radian))+"px";
+			tempElement.style.left = (starsArray[i].xRadius+starsArray[i].spacing*Math.sin(starsArray[i].radian))+"px";
+			tempElement.innerHTML = "*";
+			tempElement.setAttribute("xradius",starsArray[i].xRadius);
+			tempElement.setAttribute("yradius",starsArray[i].yRadius)
+			tempElement.setAttribute("radian",starsArray[i].radian);
+			tempElement.setAttribute("id","star"+(i+tempI));
+			tempElement.setAttribute("spacing",starsArray[i].spacing);
+			document.getElementById("galaxy").appendChild(tempElement);				
+*/
+		}
+		cContext.stroke();
+		if(document.getElementById('testCanvas')==null)
+			document.getElementById("galaxy").appendChild(tempElement);
+		stars = null;
+	}
+
+	function createGalaxy(galaxySeed,arms,direction,overlap,maxLength,maxVariance,galaxyCenterOffset){
+		stars = new Array();
+		if(document.getElementById('galaxy')){}			
+		else{
+			tempElement = document.createElement('div');
+			tempElement.id = "galaxy";
+			document.body.appendChild(tempElement);
+		}
+		totalStarCount = 0;
+		if(!document.getElementById('totalStarCountText'))
+		{
+			document.getElementById("galaxy").innerHTML+= 'Total Star Count (<div id="totalStarCountText"></div>)';
+		}
+		spacing = document.getElementById('spacingTB').value;
+		tempElement = document.createElement('div');
+		tempElement.id = "galaxy";
+		document.body.appendChild(tempElement);
+		colorVar = galaxySeed+1;
+		rangeVar = 81569163589*maxLength;
+		maxvar = 1000000000*maxLength;
+		maxVarHL = maxLength/20;
+		variance = ranGen(galaxySeed,rangeVar,maxvar);
+		spiralSteps = maxLength/spacing;  //How many times to loop through
+		spiralSections = 6.28/arms;  //Get each arm's section
+		for(a=0;a<arms;a++){
+			spiralCurrentSectionStart = a*spiralSections; //where to start the spiral from
+			SpiralTempSteps = (overlap*spiralSections)/spiralSteps;  //Spacing between stars, also adds in how many times the spiral loops around the center
+			for(i=0;i<spiralSteps;i++){				
+				stars[totalStarCount]= new Object();
+				stars[totalStarCount].red = 255;
+				colorVar = ranGen(colorVar,rangeVar,maxvar);
+				stars[totalStarCount].green = colorVar%255;
+				colorVar = ranGen(colorVar,rangeVar,maxvar);
+				stars[totalStarCount].blue = colorVar%255;
+				stars[totalStarCount].xRadius = variance*0.0000000001-maxVarHL+galaxyCenterOffset;
+				variance = ranGen(variance,rangeVar,maxvar);
+				stars[totalStarCount].yRadius = variance*0.0000000001-maxVarHL+galaxyCenterOffset;
+				variance = ranGen(variance,rangeVar,maxvar);
+				stars[totalStarCount].radian = spiralCurrentSectionStart+direction*SpiralTempSteps*i;
+				stars[totalStarCount].spacing = i*spacing;
+
+
+/*				tempElement = document.createElement('div');
+				colorTemp = "rgb(255,";
+				colorVar = ranGen(colorVar,rangeVar,maxvar);
+				colorTemp += (colorVar%255)+",";
+				colorVar = ranGen(colorVar,rangeVar,maxvar);
+				colorTemp += (colorVar%128)+")";
+				tempElement.style.color = colorTemp;
+				tempElement.style.position = "absolute";
+				tempElement.style.top = (variance*0.0000000001+galaxyCenterOffset+i*spacing*Math.cos(spiralCurrentSectionStart+direction*SpiralTempSteps*i))+"px";
+				variance = ranGen(variance,rangeVar,maxvar);
+				tempElement.style.left = (variance*0.0000000001+galaxyCenterOffset+i*spacing*Math.sin(spiralCurrentSectionStart+direction*SpiralTempSteps*i))+"px";
+				tempElement.innerHTML = "*";
+				document.getElementById("galaxy").appendChild(tempElement);	
+				variance = ranGen(variance,rangeVar,maxvar); 
+*/
+
+
+				totalStarCount++;
+			}
+		}
+		return stars;
+
+
+		
+	}
+
+	function rotateGalaxy(rotation){
+		rotation = (rotation%6.28)*-1;
+		w=0;
+		yR = 0;
+		xR = 0;
+		sRadian = 0;
+		sSpacing = 0;
+
+	/*	tempElement.setAttribute("xradius",starsArray[i].xRadius);
+		tempElement.setAttribute("yradius",starsArray[i].yRadius)
+		tempElement.setAttribute("radian",starsArray[i].radian);
+		tempElement.setAttribute("id","star"+i);
+		tempElement.setAttribute("spacing",starsArray[i].spacing);
+	*/	
+		while(starElement = document.getElementById('star'+w)){
+		sRadian = starElement.getAttribute('radian')*1;
+		yR = starElement.getAttribute('yradius')*1;
+		xR = starElement.getAttribute('xradius')*1;
+		sSpacing = starElement.getAttribute('spacing')*1;
+		starElement.style.top = (yR+sSpacing*Math.cos(sRadian+rotation))+"px";
+		starElement.style.left = (xR+sSpacing*Math.sin(sRadian+rotation))+"px";
+		starElement.setAttribute("radian",sRadian+rotation);
+		w++
+		}
+	
+
+
+	}
+
+
+
+	function ranGen(seed,range,max){  //seed must be smaller than range, max is the max value you want returned.
+		rangeD = range*2;
+		seed = (seed*range+rangeD)%max;
+		return seed;		
+	}
+
+	</script>
+	<body>
+
+		<div id="mainDiv">			
+			<input type="button" value="Create Galaxy" onClick="buildGalaxy();">
+			<input type="button" value="Delete Galaxy" onClick="elementOne = document.getElementById('galaxy');elementOne.parentNode.removeChild(elementOne);">
+			<input type="button" value="Rotate Galaxy" onClick="rotateGalaxy(0.1);"><br>
+			<input type="text" size="5" id="sizeTB" value="1000">Size<br> 
+			<input type="text" size="5" id="spacingTB" value="0.25">Spacing<br>
+			<input type="text" size="5" id="rMTB" value="6.28">Rotation Multiplier (0-6.28 range)<br>
+			<input type="text" size="5" id="armsTB" value="5">Arms<br>
+			<input type="text" size="5" id="dTB" value="1">Direction (1,-1)<br>
+			<input type="text" size="5" id="gSTB" value="384">Galaxy Seed<br>
+			<input type="text" size="5" id="gCOTB" value="1500">Galaxy Center Offset<br>
+		</div>
+		<br>
+	</body>
+</html>
+
